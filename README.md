@@ -1,12 +1,9 @@
 # cbf_utils
-Python package for using control barrier function.
+Python package for using simple control barrier function.
 
 ## example
 - field_cbf_qp_optimizer.py
 <img src=asset/field_cbf.gif width=50%>
-```python
-python3 ./example/field_cbf_qp_optimizer.py
-```
 
 ## tools
 - mypy
