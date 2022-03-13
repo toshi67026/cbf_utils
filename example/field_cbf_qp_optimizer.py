@@ -2,7 +2,6 @@
 
 import math
 import os
-import random
 import sys
 
 import matplotlib.pyplot as plt
@@ -156,7 +155,7 @@ def main() -> None:
         interval=10,
         repeat=False,
     )
-    ani.save("field_cbf.gif")
+    ani.save("asset/field_cbf.gif")
     plt.show()
 
 
