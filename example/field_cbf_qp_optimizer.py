@@ -102,8 +102,8 @@ def main() -> None:
 
         theta = 0.0
         p = 2.0
-        keep_inside = True
 
+        # switch keep_inside flag
         if (frame // 100) % 2 == 0:
             keep_inside = True
         else:
@@ -113,26 +113,18 @@ def main() -> None:
         nominal_input: np.ndarray = np.array([np.cos(frame / 10), np.sin(frame / 10)])
         agent_position = agent_position_list[-1]
         _, optimal_input = optimizer.optimize(nominal_input, agent_position)
-        ax.quiver(
-            agent_position[0],
-            agent_position[1],
-            nominal_input[0],
-            nominal_input[1],
-            color="black",
-        )
-        ax.quiver(
-            agent_position[0],
-            agent_position[1],
-            optimal_input[0],
-            optimal_input[1],
-            color="red",
-        )
+
+        # show vector
+        ax.quiver(agent_position[0], agent_position[1], nominal_input[0], nominal_input[1], color="black")
+        ax.quiver(agent_position[0], agent_position[1], optimal_input[0], optimal_input[1], color="red")
+
         ax.plot(agent_position[0], agent_position[1], "o", linewidth=5, label="agent")
         ax.plot([0], [0], linewidth=5, color="black", label="nominal_input")
         ax.plot([0], [0], linewidth=5, color="red", label="optimal_input")
         ax.plot([0], [0], linewidth=5, color="green", alpha=0.3, label="keep_inside: " + str(keep_inside))
         agent_position_list.append(agent_position + optimal_input.flatten() * dt)
 
+        # show field
         r = patches.Rectangle(
             xy=[
                 cent_field[0] - width[0] * np.cos(theta) + width[1] * np.sin(theta),
@@ -144,8 +136,9 @@ def main() -> None:
             color="green",
             alpha=0.3,
         )
-        ax.set_aspect("equal")
         ax.add_patch(r)
+
+        ax.set_aspect("equal")
         ax.set_xlabel("x")
         ax.set_ylabel("y")
         ax.grid()
