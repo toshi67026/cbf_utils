@@ -84,7 +84,7 @@ class FieldCBFOptimizer:
 def main() -> None:
     optimizer = FieldCBFOptimizer()
 
-    initial_agent_position = np.array([2, 0])
+    initial_agent_position: np.ndarray = np.array([2, 0])
     agent_position_list: List[np.ndarray] = [initial_agent_position]
     dt = 0.1
 
@@ -96,8 +96,8 @@ def main() -> None:
     ) -> None:
         ax.cla()
 
-        cent_field = np.array([np.cos(frame // 200), np.sin(frame // 200)])
-        width = np.array([1.5, 1])
+        cent_field: np.ndarray = np.array([np.cos(frame // 200), np.sin(frame // 200)])
+        width: np.ndarray = np.array([1.5, 1])
 
         theta = 0.0
         p = 2.0
