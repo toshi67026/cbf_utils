@@ -140,7 +140,7 @@ def main() -> None:
         plt.xlim(lim)
         plt.ylim(lim)
 
-    _ = FuncAnimation(
+    ani = FuncAnimation(
         fig,
         update,
         frames=1000,
