@@ -24,8 +24,6 @@ class FieldCBFOptimizer:
         self.G_list: List[np.ndarray] = []
         self.alpha_h_list: List[np.ndarray] = []
 
-        self.activate_cbf = True
-
         self.field_cbf = Pnorm2dCBF()
 
         # Initialize field (must be overwritten)
@@ -60,25 +58,20 @@ class FieldCBFOptimizer:
         G_list: List[np.ndarray] = []
         alpha_h_list: List[np.ndarray] = []
 
-        if self.activate_cbf:
+        G, alpha_h = self.get_field_constraints()
+        G_list, alpha_h_list = self.append_constraints(G_list, alpha_h_list, G, alpha_h)
 
-            G, alpha_h = self.get_field_constraints()
-            G_list, alpha_h_list = self.append_constraints(G_list, alpha_h_list, G, alpha_h)
-
-            self.alpha_h_list = alpha_h_list
-            self.G_list = G_list
+        self.alpha_h_list = alpha_h_list
+        self.G_list = G_list
 
     def optimize(self, nominal_input: np.ndarray, agent_position: np.ndarray) -> Tuple[str, np.ndarray]:
-        if self.activate_cbf:
-            self.calc_field_constraints(agent_position)
-            self.set_qp_problem()
+        self.calc_field_constraints(agent_position)
+        self.set_qp_problem()
 
-            try:
-                return self.qp_nom_solver.optimize(nominal_input, self.P, self.G_list, self.alpha_h_list)
-            except Exception as e:
-                raise e
-        else:
-            return "none", nominal_input
+        try:
+            return self.qp_nom_solver.optimize(nominal_input, self.P, self.G_list, self.alpha_h_list)
+        except Exception as e:
+            raise e
 
 
 def main() -> None:
@@ -155,7 +148,8 @@ def main() -> None:
         interval=10,
         repeat=False,
     )
-    ani.save("asset/field_cbf.gif")
+
+    # ani.save("field_cbf.gif")
     plt.show()
 
 
