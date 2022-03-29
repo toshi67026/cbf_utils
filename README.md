@@ -17,5 +17,5 @@ Python package for using simple control barrier function.
 
 ## dependencies
 ```python
-python3 -m pip install -r requirements.txt
+python3 -m pip install -I -r requirements.txt
 ```
