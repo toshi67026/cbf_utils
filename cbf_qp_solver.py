@@ -4,6 +4,7 @@ from typing import Any, List, Tuple
 
 import cvxopt
 import numpy as np
+from numpy.typing import NDArray
 
 
 class QPSolver:
@@ -35,13 +36,13 @@ class QPSolver:
         cvxopt.solvers.options["feastol"] = feastol
         cvxopt.solvers.options["refinement"] = refinement
 
-    def _set_qp_solvers(self, P: np.ndarray, q: np.ndarray, G: np.ndarray, h: np.ndarray) -> Any:
+    def _set_qp_solvers(self, P: NDArray, q: NDArray, G: NDArray, h: NDArray) -> Any:
         """
         Args:
-            P (np.ndarray): optimization weight matrix. shape=(N, N)
-            q (np.ndarray): optimization weight vector. shape=(N, 1)
-            G (np.ndarray): constraint matrix. shape=(M, N)
-            h (np.ndarray): constraint vector. shape=(M, 1)
+            P (NDArray): optimization weight matrix. shape=(N, N)
+            q (NDArray): optimization weight vector. shape=(N, 1)
+            G (NDArray): constraint matrix. shape=(M, N)
+            h (NDArray): constraint vector. shape=(M, 1)
         Returns:
             Dict[str, List[Any]]: cvxopt.solvers.coneqp
         """
@@ -59,22 +60,22 @@ class QPSolver:
 class CBFQPSolver(QPSolver):
     def optimize(
         self,
-        P: np.ndarray,
-        q: np.ndarray,
-        G_list: List[np.ndarray],
-        alpha_h_list: List[np.ndarray],
-    ) -> Tuple[str, np.ndarray]:
+        P: NDArray,
+        q: NDArray,
+        G_list: List[NDArray],
+        alpha_h_list: List[NDArray],
+    ) -> Tuple[str, NDArray]:
         """
         Solve the following optimization problem
             minimize_{u} (1/2) * u^T*P*u + q^T*u
             subject to. G*u + alpha(h) >= 0
         Args:
-            P (np.ndarray): optimization weight matrix. shape=(N, N)
-            q (np.ndarray): optimization weight vector. shape=(N, 1)
-            G (List[np.ndarray]): constraint matrix list. [(N,), (N,), ...]
-            alpha_h (List[np.ndarray]): constraint value list. [(1,), (1,), ...]
+            P (NDArray): optimization weight matrix. shape=(N, N)
+            q (NDArray): optimization weight vector. shape=(N, 1)
+            G (List[NDArray]): constraint matrix list. [(N,), (N,), ...]
+            alpha_h (List[NDArray]): constraint value list. [(1,), (1,), ...]
         Notes:
-            cvxopt.matrix()にshapeが(N,)のnp.ndarrayを渡すと，shapeが(N, 1)のmatrixを返す．
+            cvxopt.matrix()にshapeが(N,)のNDArrayを渡すと，shapeが(N, 1)のmatrixを返す．
             ソルバーに与えたいGの構造は(1, N)であるから，matrixにarrayを渡す際に(1, N)のshapeを持つようにしておく必要がある．
             制約が複数あり，ソルバーに渡すGが(M, N)の構造を持つ場合も考慮しないといけないので，以下の通りlistの長さをもとに場合分けして，様々な入力に対して適切なG_matを生成できるよう工夫している．
         Returns:
@@ -86,12 +87,12 @@ class CBFQPSolver(QPSolver):
         assert isinstance(G_list, list)
         assert isinstance(alpha_h_list, list)
 
-        G: np.ndarray
+        G: NDArray
         if len(G_list) > 1:
             G = np.array(list(map(lambda x: x.flatten(), G_list)))
         else:
             G = G_list[0].reshape(1, -1)
-        alpha_h: np.ndarray = np.array(list(map(lambda x: x.flatten(), alpha_h_list)))
+        alpha_h: NDArray = np.array(list(map(lambda x: x.flatten(), alpha_h_list)))
 
         try:
             sol = self._set_qp_solvers(P, q, G, alpha_h)
@@ -102,17 +103,17 @@ class CBFQPSolver(QPSolver):
 
 class CBFNomQPSolver(QPSolver):
     def optimize(
-        self, nominal_input: np.ndarray, P: np.ndarray, G_list: List[np.ndarray], alpha_h_list: List[np.ndarray]
-    ) -> Tuple[str, np.ndarray]:
+        self, nominal_input: NDArray, P: NDArray, G_list: List[NDArray], alpha_h_list: List[NDArray]
+    ) -> Tuple[str, NDArray]:
         """
         Solve the following optimization problem
             min_{u} (1/2) * (u-nominal_input)^T*P*(u-nominal_input)
             subject to G*u + alpha(h) >= 0
         Args:
-            nominal_input (np.ndarray):
-            P (np.ndarray): optimization weight matrix. shape=(N, N)
-            G (List[np.ndarray]): constraint matrix list. [shape]=[(N,), (N,), ...]
-            alpha_h (List[np.ndarray]): constraint matrix list. [shape]=[(1,), (1,), ...]
+            nominal_input (NDArray):
+            P (NDArray): optimization weight matrix. shape=(N, N)
+            G (List[NDArray]): constraint matrix list. [shape]=[(N,), (N,), ...]
+            alpha_h (List[NDArray]): constraint matrix list. [shape]=[(1,), (1,), ...]
         Returns:
             (ndarray): optimal input. shape=(N,)
         """
@@ -123,13 +124,13 @@ class CBFNomQPSolver(QPSolver):
         assert isinstance(G_list, list)
         assert isinstance(alpha_h_list, list)
 
-        G: np.ndarray
+        G: NDArray
         if len(G_list) > 1:
             G = -np.array(list(map(lambda x: x.flatten(), G_list)))
         else:
             G = -G_list[0].reshape(1, -1)
 
-        alpha_h: np.ndarray = np.array(list(map(lambda x: x.flatten(), alpha_h_list)))
+        alpha_h: NDArray = np.array(list(map(lambda x: x.flatten(), alpha_h_list)))
 
         sol = self._set_qp_solvers(P, q, G, alpha_h)
         return sol["status"], np.array(sol["x"]).flatten()
@@ -139,8 +140,8 @@ def main() -> None:
     qp_solver = CBFQPSolver()
     P = np.eye(2)
     q = np.ones(2)
-    G_list: List[np.ndarray] = [np.array([1.0, 2.0])]
-    alpha_h_list: List[np.ndarray] = [np.array(1.0)]
+    G_list: List[NDArray] = [np.array([1.0, 2.0])]
+    alpha_h_list: List[NDArray] = [np.array(1.0)]
     print(f"G_list: {G_list}")
     print(f"alpha_h_list: {alpha_h_list}")
 
