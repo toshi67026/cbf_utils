@@ -5,6 +5,7 @@ import os
 import sys
 
 import matplotlib.pyplot as plt
+from numpy.typing import NDArray
 
 sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 
@@ -21,42 +22,42 @@ class FieldCBFOptimizer:
     def __init__(self) -> None:
         self.qp_nom_solver = CBFNomQPSolver()
         self.P = np.eye(2)
-        self.G_list: List[np.ndarray] = []
-        self.alpha_h_list: List[np.ndarray] = []
+        self.G_list: List[NDArray] = []
+        self.alpha_h_list: List[NDArray] = []
 
         self.field_cbf = Pnorm2dCBF()
 
         # Initialize field (must be overwritten)
         cent_field = np.zeros(2)
-        width: np.ndarray = np.array([3.0, 2.0])
+        width: NDArray = np.array([3.0, 2.0])
         self.set_field_parameters(cent_field, width)
 
     def set_field_parameters(
-        self, cent_field: np.ndarray, width: np.ndarray, theta: float = 0.0, p: float = 2.0, keep_inside: bool = True
+        self, cent_field: NDArray, width: NDArray, theta: float = 0.0, p: float = 2.0, keep_inside: bool = True
     ) -> None:
         self.field_cbf.set_parameters(cent_field, width, theta, p, keep_inside)
 
-    def get_field_parameters(self) -> Tuple[np.ndarray, np.ndarray, float, float, bool]:
+    def get_field_parameters(self) -> Tuple[NDArray, NDArray, float, float, bool]:
         return self.field_cbf.get_parameters()
 
-    def calc_field_constraints(self, agent_position: np.ndarray) -> None:
+    def calc_field_constraints(self, agent_position: NDArray) -> None:
         cent_field, width, theta, p, keep_inside = self.get_field_parameters()
         self.field_cbf.set_parameters(cent_field, width, theta, p, keep_inside)
         self.field_cbf.calc_constraints(agent_position)
 
-    def get_field_constraints(self) -> Tuple[np.ndarray, np.ndarray]:
+    def get_field_constraints(self) -> Tuple[NDArray, NDArray]:
         return self.field_cbf.get_constraints()
 
     def append_constraints(
-        self, G_list: List[np.ndarray], alpha_h_list: List[np.ndarray], G: np.ndarray, alpha_h: np.ndarray
-    ) -> Tuple[List[np.ndarray], List[np.ndarray]]:
+        self, G_list: List[NDArray], alpha_h_list: List[NDArray], G: NDArray, alpha_h: NDArray
+    ) -> Tuple[List[NDArray], List[NDArray]]:
         G_list.append(G)
         alpha_h_list.append(alpha_h)
         return G_list, alpha_h_list
 
     def set_qp_problem(self) -> None:
-        G_list: List[np.ndarray] = []
-        alpha_h_list: List[np.ndarray] = []
+        G_list: List[NDArray] = []
+        alpha_h_list: List[NDArray] = []
 
         G, alpha_h = self.get_field_constraints()
         G_list, alpha_h_list = self.append_constraints(G_list, alpha_h_list, G, alpha_h)
@@ -64,7 +65,7 @@ class FieldCBFOptimizer:
         self.alpha_h_list = alpha_h_list
         self.G_list = G_list
 
-    def optimize(self, nominal_input: np.ndarray, agent_position: np.ndarray) -> Tuple[str, np.ndarray]:
+    def optimize(self, nominal_input: NDArray, agent_position: NDArray) -> Tuple[str, NDArray]:
         self.calc_field_constraints(agent_position)
         self.set_qp_problem()
 
@@ -77,20 +78,20 @@ class FieldCBFOptimizer:
 def main() -> None:
     optimizer = FieldCBFOptimizer()
 
-    initial_agent_position: np.ndarray = np.array([2, 0])
-    agent_position_list: List[np.ndarray] = [initial_agent_position]
+    initial_agent_position: NDArray = np.array([2, 0])
+    agent_position_list: List[NDArray] = [initial_agent_position]
     dt = 0.1
 
     fig, ax = plt.subplots()
 
     def update(
         frame: int,
-        agent_position_list: List[np.ndarray],
+        agent_position_list: List[NDArray],
     ) -> None:
         ax.cla()
 
-        cent_field: np.ndarray = np.array([np.cos(frame // 200), np.sin(frame // 200)])
-        width: np.ndarray = np.array([1.5, 1])
+        cent_field: NDArray = np.array([np.cos(frame // 200), np.sin(frame // 200)])
+        width: NDArray = np.array([1.5, 1])
 
         theta = 0.0
         p = 2.0
@@ -102,7 +103,7 @@ def main() -> None:
             keep_inside = False
 
         optimizer.set_field_parameters(cent_field, width, theta, p, keep_inside)
-        nominal_input: np.ndarray = np.array([np.cos(frame / 10), np.sin(frame / 10)])
+        nominal_input: NDArray = np.array([np.cos(frame / 10), np.sin(frame / 10)])
         agent_position = agent_position_list[-1]
         _, optimal_input = optimizer.optimize(nominal_input, agent_position)
 
