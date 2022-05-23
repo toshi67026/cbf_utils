@@ -78,9 +78,9 @@ class FieldCBFOptimizer:
 def main() -> None:
     optimizer = FieldCBFOptimizer()
 
-    initial_agent_position: NDArray = np.array([2, 0])
+    initial_agent_position: NDArray = -3 * np.ones(2)
     agent_position_list: List[NDArray] = [initial_agent_position]
-    dt = 0.1
+    sampling_time = 0.1
 
     fig, ax = plt.subplots()
 
@@ -90,20 +90,16 @@ def main() -> None:
     ) -> None:
         ax.cla()
 
-        cent_field: NDArray = np.array([np.cos(frame // 200), np.sin(frame // 200)])
-        width: NDArray = np.array([1.5, 1])
+        cent_field: NDArray = np.zeros(2)
+        width: NDArray = np.array([3, 2])
 
-        theta = 0.0
+        theta = -0.2
         p = 2.0
 
-        # switch keep_inside flag
-        if (frame // 100) % 2 == 0:
-            keep_inside = True
-        else:
-            keep_inside = False
+        keep_inside = False
 
         optimizer.set_field_parameters(cent_field, width, theta, p, keep_inside)
-        nominal_input: NDArray = np.array([np.cos(frame / 10), np.sin(frame / 10)])
+        nominal_input: NDArray = np.ones(2)
         agent_position = agent_position_list[-1]
         _, optimal_input = optimizer.optimize(nominal_input, agent_position)
 
@@ -114,20 +110,17 @@ def main() -> None:
         ax.plot(agent_position[0], agent_position[1], "o", linewidth=5, label="agent")
         ax.plot([0], [0], linewidth=5, color="black", label="nominal_input")
         ax.plot([0], [0], linewidth=5, color="red", label="optimal_input")
-        ax.plot([0], [0], linewidth=5, color="green", alpha=0.3, label="keep_inside: " + str(keep_inside))
-        agent_position_list.append(agent_position + optimal_input.flatten() * dt)
+        ax.plot([0], [0], linewidth=5, color="green", alpha=0.5, label="keep_inside: " + str(keep_inside))
+        agent_position_list.append(agent_position + optimal_input.flatten() * sampling_time)
 
         # show field
-        r = patches.Rectangle(
-            xy=[
-                cent_field[0] - width[0] * np.cos(theta) + width[1] * np.sin(theta),
-                cent_field[1] - width[0] * np.sin(theta) - width[1] * np.cos(theta),
-            ],
+        r = patches.Ellipse(
+            xy=cent_field,
             width=width[0] * 2,
             height=width[1] * 2,
             angle=theta * 180 / math.pi,
             color="green",
-            alpha=0.3,
+            alpha=0.5,
         )
         ax.add_patch(r)
 
@@ -144,7 +137,7 @@ def main() -> None:
     ani = FuncAnimation(
         fig,
         update,
-        frames=1000,
+        frames=100,
         fargs=(agent_position_list,),
         interval=10,
         repeat=False,
