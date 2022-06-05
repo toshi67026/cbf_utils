@@ -143,12 +143,12 @@ def main() -> None:
     G_list: List[NDArray] = [np.array([1.0, 2.0])]
     alpha_h_list: List[NDArray] = [np.array(1.0)]
     print(f"G_list: {G_list}")
-    print(f"alpha_h_list: {alpha_h_list}")
+    print(f"alpha_h_list: {alpha_h_list}\n")
 
     status, optimal_input = qp_solver.optimize(P, q, G_list, alpha_h_list)
     print("CBFQPSolver")
     print(f"status = {status}")
-    print(f"optimal_input =\n{optimal_input}")
+    print(f"optimal_input =\n{optimal_input}\n")
 
     nom_qp_solver = CBFNomQPSolver()
 
@@ -156,17 +156,17 @@ def main() -> None:
     status, optimal_input = nom_qp_solver.optimize(nominal_input, P, G_list, alpha_h_list)
     print("CBFNomQPSolver")
     print(f"status = {status}")
-    print(f"optimal_input =\n{optimal_input}")
+    print(f"optimal_input =\n{optimal_input}\n")
 
     G_list = [np.array([1.0, 2.0]), np.array([1.0, 2.0])]
     alpha_h_list = [np.array([1.0]), np.array(1.0)]
     print(f"G_list: {G_list}")
-    print(f"alpha_h_list: {alpha_h_list}")
+    print(f"alpha_h_list: {alpha_h_list}\n")
 
     status, optimal_input = qp_solver.optimize(P, q, G_list, alpha_h_list)
     print("CBFQPSolver")
     print(f"status = {status}")
-    print(f"optimal_input =\n{optimal_input}")
+    print(f"optimal_input =\n{optimal_input}\n")
 
     nom_qp_solver = CBFNomQPSolver()
 
