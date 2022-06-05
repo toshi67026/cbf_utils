@@ -96,11 +96,11 @@ class Pnorm2dCBF(CBFBase):
         self.cent_field = cent_field.flatten()
         self.width = width.flatten()
         self.theta = theta
+        assert p >= 1
         self.p = p
         self.sign: int = 1 if keep_inside else -1
 
-        # TODO(toshi) p = infの場合にmaxノルムになるような場合分けを実装
-        self.cbf = 1.0 - (sum(abs(np.array([self.x, self.y])) ** self.p) ** (1 / self.p))
+        self.cbf = 1.0 - sum(abs(np.array([self.x, self.y])) ** self.p) ** (1 / self.p)
 
     def get_parameters(self) -> Tuple[NDArray, NDArray, float, float, bool]:
         """
@@ -120,8 +120,7 @@ class Pnorm2dCBF(CBFBase):
             The value for each axis is normalized by width.
         """
         rotation_matrix = self._calc_rotation_matrix(-self.theta)
-        ret: NDArray = np.dot(rotation_matrix, agent_position - self.cent_field) / self.width
-        return ret
+        return rotation_matrix @ (agent_position - self.cent_field) / self.width
 
     def _calc_constraint_matrix(self, agent_position: NDArray) -> None:
         """
@@ -148,7 +147,7 @@ class Pnorm2dCBF(CBFBase):
             ]
         )
         rotation_matrix = self._calc_rotation_matrix(self.theta)
-        self.G = self.sign * (np.dot(rotation_matrix, coeff / self.width))
+        self.G = self.sign * rotation_matrix @ (coeff / self.width)
 
     def _calc_constraint_value(self, agent_position: NDArray) -> None:
         """
@@ -177,7 +176,9 @@ class Pnorm2dCBF(CBFBase):
 
     @staticmethod
     def _calc_rotation_matrix(rad: float) -> NDArray:
-        return np.array([[np.cos(rad), -np.sin(rad)], [np.sin(rad), np.cos(rad)]])
-
-
-# TODO(toshi) その他のCBFクラス実装
+        return np.array(
+            [
+                [np.cos(rad), -np.sin(rad)],
+                [np.sin(rad), np.cos(rad)],
+            ]
+        )
