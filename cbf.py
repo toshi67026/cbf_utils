@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 from dataclasses import dataclass
-from typing import Tuple
+from typing import Tuple, cast
 
 import numpy as np
 import sympy
@@ -120,7 +120,7 @@ class Pnorm2dCBF(CBFBase):
             The value for each axis is normalized by width.
         """
         rotation_matrix = self._calc_rotation_matrix(-self.theta)
-        return rotation_matrix @ (agent_position - self.cent_field) / self.width
+        return cast(NDArray, rotation_matrix @ (agent_position - self.cent_field) / self.width)
 
     def _calc_constraint_matrix(self, agent_position: NDArray) -> None:
         """
@@ -132,13 +132,13 @@ class Pnorm2dCBF(CBFBase):
         agent_position_transformed = self._transform_agent_position(agent_position)
         coeff = np.array(
             [
-                self.cbf.diff(self.x).subs(  # type: ignore
+                self.cbf.diff(self.x).subs(
                     [
                         (self.x, agent_position_transformed[0]),
                         (self.y, agent_position_transformed[1]),
                     ]
                 ),
-                self.cbf.diff(self.y).subs(  # type: ignore
+                self.cbf.diff(self.y).subs(
                     [
                         (self.x, agent_position_transformed[0]),
                         (self.y, agent_position_transformed[1]),
@@ -157,7 +157,7 @@ class Pnorm2dCBF(CBFBase):
         agent_position_transformed = self._transform_agent_position(agent_position)
         self.h = np.array(
             self.sign
-            * self.cbf.subs(  # type: ignore
+            * self.cbf.subs(
                 [
                     (self.x, agent_position_transformed[0]),
                     (self.y, agent_position_transformed[1]),

@@ -130,7 +130,7 @@ class CBFNomQPSolver(QPSolver):
         else:
             G = -G_list[0].reshape(1, -1)
 
-        alpha_h: NDArray = np.array(list(map(lambda x: x.flatten(), alpha_h_list)))
+        alpha_h = np.array(list(map(lambda x: x.flatten(), alpha_h_list)))
 
         sol = self._set_qp_solvers(P, q, G, alpha_h)
         return sol["status"], np.array(sol["x"]).flatten()

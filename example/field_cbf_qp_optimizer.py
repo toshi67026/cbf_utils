@@ -3,19 +3,18 @@
 import math
 import os
 import sys
+from typing import List, Tuple
 
 import matplotlib.pyplot as plt
+import numpy as np
+from matplotlib import patches
+from matplotlib.animation import FuncAnimation
 from numpy.typing import NDArray
 
 sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 
-from typing import List, Tuple
-
-import numpy as np
 from cbf import Pnorm2dCBF
 from cbf_qp_solver import CBFNomQPSolver
-from matplotlib import patches
-from matplotlib.animation import FuncAnimation
 
 
 class FieldCBFOptimizer:
@@ -29,7 +28,7 @@ class FieldCBFOptimizer:
 
         # Initialize field (must be overwritten)
         cent_field = np.zeros(2)
-        width: NDArray = np.array([3.0, 2.0])
+        width = np.array([3.0, 2.0])
         self.set_field_parameters(cent_field, width)
 
     def set_field_parameters(
@@ -78,7 +77,7 @@ class FieldCBFOptimizer:
 def main() -> None:
     optimizer = FieldCBFOptimizer()
 
-    initial_agent_position: NDArray = -3 * np.ones(2)
+    initial_agent_position = -3 * np.ones(2)
     agent_position_list: List[NDArray] = [initial_agent_position]
     sampling_time = 0.1
 
@@ -90,8 +89,8 @@ def main() -> None:
     ) -> None:
         ax.cla()
 
-        cent_field: NDArray = np.zeros(2)
-        width: NDArray = np.array([3, 2])
+        cent_field = np.zeros(2)
+        width = np.array([3, 2])
 
         theta = -0.2
         p = 2.0
@@ -99,7 +98,7 @@ def main() -> None:
         keep_inside = False
 
         optimizer.set_field_parameters(cent_field, width, theta, p, keep_inside)
-        nominal_input: NDArray = np.ones(2)
+        nominal_input = np.ones(2)
         agent_position = agent_position_list[-1]
         _, optimal_input = optimizer.optimize(nominal_input, agent_position)
 
