@@ -87,12 +87,11 @@ class CBFQPSolver(QPSolver):
         assert isinstance(G_list, list)
         assert isinstance(alpha_h_list, list)
 
-        G: NDArray
         if len(G_list) > 1:
             G = np.array(list(map(lambda x: x.flatten(), G_list)))
         else:
             G = G_list[0].reshape(1, -1)
-        alpha_h: NDArray = np.array(list(map(lambda x: x.flatten(), alpha_h_list)))
+        alpha_h = np.array(list(map(lambda x: x.flatten(), alpha_h_list)))
 
         try:
             sol = self._set_qp_solvers(P, q, G, alpha_h)
@@ -124,7 +123,6 @@ class CBFNomQPSolver(QPSolver):
         assert isinstance(G_list, list)
         assert isinstance(alpha_h_list, list)
 
-        G: NDArray
         if len(G_list) > 1:
             G = -np.array(list(map(lambda x: x.flatten(), G_list)))
         else:
